@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ar">
+
+<head>
+    <meta charset="UTF-8">
+    <title>نظام حضور الطلاب — السجل الكامل</title>
+
+    <style>
+        body {
+            font-family: "Tajawal", sans-serif;
+            background: #eef1f7;
+            direction: rtl;
+        }
+
+        .container {
+            width: 70%;
+            margin: 40px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px #ccc;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .form-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input,
+        select {
+            padding: 10px;
+            font-size: 18px;
+            width: 33%;
+            border-radius: 8px;
+            border: 1px solid #aaa;
+        }
+
+        button {
+            padding: 12px 20px;
+            background: #2d89e5;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1a5ea5;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table th,
+        table td {
+            border: 1px solid #aaa;
+            padding: 10px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .present {
+            color: green;
+            font-weight: bold;
+        }
+
+        .absent {
+            color: red;
+            font-weight: bold;
+        }
+
+        .download-btn {
+            margin-top: 20px;
+            width: 100%;
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>نظام تسجيل حضور الطلاب — السجل الكامل</h1>
+
+        <!-- إدخال البيانات -->
+        <div class="form-box">
+            <input type="text" id="studentName" placeholder="اسم الطالب">
+            <select id="status">
+                <option value="حاضر">حاضر</option>
+                <option value="غائب">غائب</option>
+            </select>
+            <input type="text" id="customDate" placeholder="التاريخ (مثال: 2025/11/17)">
+            <button onclick="addRecord()">تسجيل</button>
+        </div>
+
+        <!-- جدول الحضور -->
+        <table id="attendanceTable">
+            <tr>
+                <th>الاسم</th>
+                <th>الحالة</th>
+                <th>التاريخ</th>
+            </tr>
+        </table>
+
+        <button class="download-btn" onclick="downloadCSV()">تحميل السجل CSV</button>
+
+    </div>
+
+    <script>
+        let attendanceHistory = [];  // حفظ السجل الكامل
+
+        // إضافة سجل جديد
+        function addRecord() {
+            let name = document.getElementById("studentName").value.trim();
+            let status = document.getElementById("status").value;
+            let date = document.getElementById("customDate").value.trim();
+
+            if (!name) return alert("أدخل اسم الطالب");
+            if (!date) return alert("أدخل التاريخ");
+
+            attendanceHistory.push({ name, status, date });
+
+            renderTable();
+
+            // تفريغ الخانات
+            document.getElementById("studentName").value = "";
+            document.getElementById("customDate").value = "";
+        }
+
+        // عرض السجل في الجدول
+        function renderTable() {
+            let table = document.getElementById("attendanceTable");
+            table.innerHTML = `
+        <tr>
+            <th>الاسم</th>
+            <th>الحالة</th>
+            <th>التاريخ</th>
+        </tr>
+    `;
+
+            attendanceHistory.forEach(record => {
+                let row = table.insertRow();
+
+                row.insertCell(0).innerText = record.name;
+
+                let statusCell = row.insertCell(1);
+                statusCell.innerHTML = record.status === "حاضر"
+                    ? "<span class='present'>حاضر</span>"
+                    : "<span class='absent'>غائب</span>";
+
+                row.insertCell(2).innerText = record.date;
+            });
+        }
+
+        // تحميل CSV
+        function downloadCSV() {
+            let csv = "الاسم,الحالة,التاريخ\n";
+
+            attendanceHistory.forEach(r => {
+                csv += `${r.name},${r.status},${r.date}\n`;
+            });
+
+            let file = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+            let link = document.createElement("a");
+            link.href = URL.createObjectURL(file);
+            link.download = "StudentAttendanceHistory.csv";
+            link.click();
+        }
+    </script>
+
+</body>
+
+</html>
